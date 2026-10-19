@@ -1,0 +1,511 @@
+{
+  "name": "D2C WhatsApp AI Customer Support & Sales OS",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "d2c/whatsapp/webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "04353a0b-f587-45e1-98a9-5c0744d2d26a",
+      "name": "WhatsApp Verify Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] || '' }}",
+        "options": {}
+      },
+      "id": "b2d810ed-ec3b-462b-8f6e-994c31ffe551",
+      "name": "WhatsApp Verify Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.intent === \"order_tracking\" }}",
+              "operation": "isTrue"
+            }
+          ]
+        }
+      },
+      "id": "cd979a4d-6990-4a5f-9bc6-bcf8ca219144",
+      "name": "Route Order",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1220, 80]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.D2C_ORDER_API_URL || 'http://localhost:3000/api/orders' }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "order_id",
+              "value": "={{ $json.order_id }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "4c09fd56-ed05-4b04-8496-4633d950c813",
+      "name": "Get Order Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1470, 80]
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Parse Intent').first().json;\nreturn [{json:{\n  ...base,\n  mode:'customer_support',\n  context_type:'order',\n  context: {\n    order_id: base.order_id || '',\n    api_result: $json\n  }\n}}];"
+      },
+      "id": "e11f2c6b-f5ac-4b8a-a0c2-6145a3ebca84",
+      "name": "Prepare Order Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1700, 80]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SARVAM_VOICE_AGENT_URL || 'http://localhost:3000/api/sarvam-voice' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { phone: $('Parse Intent').first().json.phone, language: 'hi-IN', context: $('Parse Intent').first().json.customer_message, customer_name: $('Parse Intent').first().json.name, source: 'd2c_whatsapp' } }}",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "f2d0978e-49f0-4c73-8aec-4e356e165f45",
+      "name": "Sarvam Voice Handoff",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2410, 180],
+      "notes": "Telephony and voice-agent adapter for Sarvam AI voice stack."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.intent === \"returns_refunds_exchanges\" }}",
+              "operation": "isTrue"
+            }
+          ]
+        }
+      },
+      "id": "a90bbe14-b9f3-4a14-9d3b-b9fb17171bb0",
+      "name": "Route Returns",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1460, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.D2C_RETURN_API_URL || 'http://localhost:3000/api/returns' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { order_id: $json.order_id, phone: $json.phone, customer_message: $json.customer_message, action: 'evaluate' } }}",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "e7ef2617-4e32-4636-8dc9-002c48521dcf",
+      "name": "Returns Eligibility & Action",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1470, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Parse Intent').first().json;\nreturn [{json:{\n  ...base,\n  mode:'customer_support',\n  context_type:'returns_refunds_exchanges',\n  context:{order_id:base.order_id||'', api_result:$json}\n}}];"
+      },
+      "id": "4e8959c3-7a68-4d45-8174-c07a68915581",
+      "name": "Prepare Returns Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1700, 200]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.customer_message }}",
+        "options": {
+          "systemMessage": "You are the intent router for a D2C brand WhatsApp support system.\nClassify the customer's message into exactly one of:\norder_tracking, returns_refunds_exchanges, product_recommendation_sales, complaint_ticket, general_support.\nSet needs_human=true for threats, legal issues, payment disputes, repeated unresolved failures, or abusive interactions.\nSet needs_call=true when the customer explicitly asks for a phone call/callback or voice support.\nExtract order_id only when clearly present.\nReturn ONLY valid JSON, no markdown:\n{\"intent\":\"...\",\"needs_human\":false,\"needs_call\":false,\"order_id\":\"\",\"reason\":\"\"}"
+        }
+      },
+      "id": "f06e1fdb-a04c-438f-898a-dd7fdf21f14c",
+      "name": "AI Intent Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [720, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Normalize WhatsApp Message').first().json;\nconst raw = String($json.output ?? $json.text ?? '').trim();\nlet parsed;\ntry {\n  parsed = JSON.parse(raw.replace(/^```json\\s*/,'').replace(/```$/,'').trim());\n} catch (e) {\n  parsed = {\n    intent: 'general_support',\n    needs_human: true,\n    needs_call: false,\n    order_id: '',\n    reason: 'AI router returned invalid JSON'\n  };\n}\nconst allowed = new Set([\n  'order_tracking',\n  'returns_refunds_exchanges',\n  'product_recommendation_sales',\n  'complaint_ticket',\n  'general_support'\n]);\nif (!allowed.has(parsed.intent)) parsed.intent = 'general_support';\n\nreturn [{\n  json: {\n    ...base,\n    ...parsed,\n    order_id: parsed.order_id || '',\n    intent: parsed.intent\n  }\n}];"
+      },
+      "id": "4a085ac4-8fac-49e7-87f0-41d015aec839",
+      "name": "Parse Intent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [980, 240]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify({mode:$json.mode, customer_name:$json.name, customer_message:$json.customer_message, intent:$json.intent, context_type:$json.context_type, context:$json.context, needs_human:$json.needs_human}) }}",
+        "options": {
+          "systemMessage": "You are a production D2C customer support and sales agent on WhatsApp.\nUse the supplied API context as the source of truth. Never invent order status, refund amounts, dates, SKUs, or policy outcomes.\nFor order tracking: clearly state current status and ETA when available.\nFor returns/refunds/exchanges: state eligibility/action/status and the next step.\nFor product recommendation: recommend only products returned by the API, with concise benefits, price/offer if present, and a checkout link if present.\nFor complaints: acknowledge, give ticket number/status if returned, and explain next step.\nFor general support: answer helpfully without fabricating policy.\nIf needs_human=true, tell the customer a human specialist will take over.\nIf needs_call=true, confirm a callback request and do not claim a call has already been placed unless the API says so.\nReply in the customer's language/script where practical, keep it WhatsApp-friendly, under 700 characters, and do not use markdown tables.\nReturn ONLY the final customer message text."
+        }
+      },
+      "id": "9ebcd6d5-a14c-474e-9b0c-c5b50294aa87",
+      "name": "AI Customer Response Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [1960, 280]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $('Parse Intent').first().json.needs_call === true }}",
+              "operation": "isTrue"
+            }
+          ]
+        }
+      },
+      "id": "f4f0014d-aa5e-4fe2-84de-18916959f240",
+      "name": "Needs Voice Callback?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2180, 280]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d2c/whatsapp/webhook",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "6708458e-d366-421a-84ca-1e519b94715e",
+      "name": "WhatsApp Incoming Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst value = body?.entry?.[0]?.changes?.[0]?.value;\nconst message = value?.messages?.[0];\n\nif (!message) {\n  return [{json: {ignore: true, reason: 'No customer message in webhook payload'}}];\n}\n\nconst contact = value?.contacts?.[0];\nconst text =\n  message?.text?.body ??\n  message?.button?.text ??\n  message?.interactive?.button_reply?.title ??\n  message?.interactive?.list_reply?.title ??\n  '';\n\nreturn [{\n  json: {\n    ignore: false,\n    channel: 'whatsapp',\n    message_id: message.id,\n    phone: message.from,\n    name: contact?.profile?.name ?? '',\n    message_type: message.type,\n    customer_message: String(text).trim(),\n    raw: body\n  }\n}];"
+      },
+      "id": "4825c29e-22ac-4926-93c0-7557a8b94a34",
+      "name": "Normalize WhatsApp Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ !$json.ignore && !!$json.customer_message }}",
+              "operation": "isTrue"
+            }
+          ]
+        }
+      },
+      "id": "9e0bd0d8-40df-44fa-9bbb-3713eeb8af4f",
+      "name": "Has Customer Message",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.D2C_PRODUCT_API_URL || 'http://localhost:3000/api/products' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { query: $json.customer_message, phone: $json.phone, order_id: $json.order_id || '' } }}",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "2a2ee4a2-e56f-460d-8a4b-e3ebd9d406f7",
+      "name": "Product Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1470, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Parse Intent').first().json;\nreturn [{json:{\n  ...base,\n  mode:'customer_support',\n  context_type:'product_recommendation_sales',\n  context:{api_result:$json}\n}}];"
+      },
+      "id": "6192d6e0-7b44-44f6-8afa-2268362e7a24",
+      "name": "Prepare Product Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1700, 320]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.intent === \"product_recommendation_sales\" }}",
+              "operation": "isTrue"
+            }
+          ]
+        }
+      },
+      "id": "93e74707-e15f-480e-a797-9de4fb9dc27c",
+      "name": "Route Products",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1700, 320]
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Parse Intent').first().json;\nconst response = String($('AI Customer Response Agent').first().json.output ?? '').trim();\nreturn [{json:{\n  phone: base.phone,\n  send_type:'text',\n  message: response || 'Sorry, I could not process that request right now. A support specialist will help you shortly.',\n  source_message_id: base.message_id\n}}];"
+      },
+      "id": "52e3f72e-0557-4dc6-98ce-1b319cfa75c8",
+      "name": "Build WhatsApp Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2410, 360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://graph.facebook.com/' + ($env.WHATSAPP_GRAPH_VERSION || 'v23.0') + '/' + $env.WHATSAPP_PHONE_NUMBER_ID + '/messages' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.WHATSAPP_ACCESS_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.send_type === 'template' ? { messaging_product:'whatsapp', to:$json.phone, type:'template', template:{name:$json.template_name, language:{code:$json.template_language || 'en_US'}, components:$json.template_components || []} } : { messaging_product:'whatsapp', to:$json.phone, type:'text', text:{preview_url:false, body:$json.message} } }}",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "adb67f3f-213b-4b5b-b3fb-aa97d98f07c0",
+      "name": "Send WhatsApp Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2660, 360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.D2C_TICKET_API_URL || 'http://localhost:3000/api/tickets' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { phone: $json.phone, name: $json.name, order_id: $json.order_id || '', message: $json.customer_message, source: 'whatsapp', priority: $json.needs_human ? 'high' : 'normal' } }}",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "e34ad300-289f-436a-bfc2-c51fcfb7f4b8",
+      "name": "Create Support Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1470, 440]
+    },
+    {
+      "parameters": {
+        "jsCode": "const base = $('Parse Intent').first().json;\nreturn [{json:{\n  ...base,\n  mode:'customer_support',\n  context_type:'complaint_ticket',\n  context:{ticket_result:$json}\n}}];"
+      },
+      "id": "4937d77e-00f9-42ec-b080-84789f1b0d46",
+      "name": "Prepare Complaint Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1700, 440]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.intent === \"complaint_ticket\" }}",
+              "operation": "isTrue"
+            }
+          ]
+        }
+      },
+      "id": "0c824b82-534c-4926-be1f-999d7211ee3e",
+      "name": "Route Complaint",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1940, 440]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{json:{\n  ...$json,\n  mode:'customer_support',\n  context_type:'general_support',\n  context:{}\n}}];"
+      },
+      "id": "3c62a36a-a192-4772-81cf-f92897949de0",
+      "name": "Prepare General Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1470, 560]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/15 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "06195b83-bbf0-4a28-b65c-fad8dcfd7718",
+      "name": "Proactive Campaign Scheduler",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 900]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.D2C_PROACTIVE_QUEUE_URL || 'http://localhost:3000/api/proactive-queue' }}",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "89fe2903-915c-4cdf-a934-37652bba517e",
+      "name": "Fetch Proactive Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 900]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.items ?? $json.data ?? $json;\nconst items = Array.isArray(data) ? data : [];\nreturn items\n  .filter(x => x && x.phone && x.campaign_type)\n  .map(x => ({json:{\n    mode:'proactive',\n    phone:String(x.phone),\n    name:x.name||'',\n    campaign_type:x.campaign_type,\n    customer_context:x.context||x.customer_context||{},\n    offer:x.offer||'',\n    message_goal:x.message_goal||'',\n    template_name:x.template_name || ($env.D2C_PROACTIVE_TEMPLATE_NAME || ''),\n    template_language:x.template_language || ($env.D2C_PROACTIVE_TEMPLATE_LANGUAGE || 'en_US'),\n    template_components:Array.isArray(x.template_components) ? x.template_components : []\n  }}));"
+      },
+      "id": "3a7e23a8-39ab-4424-bae7-642683f1b26b",
+      "name": "Normalize Proactive Queue",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 900]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json) }}",
+        "options": {
+          "systemMessage": "You are a D2C WhatsApp lifecycle marketing agent.\nCampaign types may be abandoned_cart, cod_confirmation, delivery_reminder, post_purchase, review_request, reorder_reminder, cross_sell.\nCreate one concise WhatsApp message that is helpful and action-oriented. Never fabricate product/order facts; use supplied context only.\nKeep under 600 characters. Do not sound spammy. For COD confirmation, ask for confirmation. For reviews, ask for feedback after delivery. For reorder, mention the product/context only if provided.\nReturn ONLY the customer message text."
+        }
+      },
+      "id": "d9b69cb8-89a4-4bd7-bb9b-d5b909ac3a5f",
+      "name": "AI Proactive Engagement Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [760, 900]
+    },
+    {
+      "parameters": {
+        "jsCode": "const q = $('Normalize Proactive Queue').item.json;\nconst message = String($json.output||'').trim();\nconst components = q.template_components.length ? q.template_components : [\n  {type:'body', parameters:[{type:'text', text:message}]}\n];\nreturn [{json:{\n  phone:q.phone,\n  send_type:'template',\n  template_name:q.template_name,\n  template_language:q.template_language,\n  template_components:components,\n  message\n}}];"
+      },
+      "id": "6dfe4192-f6d9-4d60-8b55-488c4b0263be",
+      "name": "Build Proactive WhatsApp Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1020, 900]
+    }
+  ],
+  "connections": {
+    "WhatsApp Verify Webhook": { "main": [[{ "node": "WhatsApp Verify Response", "type": "main", "index": 0 }]] },
+    "WhatsApp Incoming Webhook": { "main": [[{ "node": "Normalize WhatsApp Message", "type": "main", "index": 0 }]] },
+    "Normalize WhatsApp Message": { "main": [[{ "node": "Has Customer Message", "type": "main", "index": 0 }]] },
+    "Has Customer Message": { "main": [[{ "node": "AI Intent Agent", "type": "main", "index": 0 }]] },
+    "AI Intent Agent": { "main": [[{ "node": "Parse Intent", "type": "main", "index": 0 }]] },
+    "Parse Intent": { "main": [[{ "node": "Route Order", "type": "main", "index": 0 }]] },
+    "Route Order": { "main": [[{ "node": "Get Order Status", "type": "main", "index": 0 }], [{ "node": "Route Returns", "type": "main", "index": 0 }]] },
+    "Get Order Status": { "main": [[{ "node": "Prepare Order Context", "type": "main", "index": 0 }]] },
+    "Prepare Order Context": { "main": [[{ "node": "AI Customer Response Agent", "type": "main", "index": 0 }]] },
+    "Route Returns": { "main": [[{ "node": "Returns Eligibility & Action", "type": "main", "index": 0 }], [{ "node": "Route Products", "type": "main", "index": 0 }]] },
+    "Returns Eligibility & Action": { "main": [[{ "node": "Prepare Returns Context", "type": "main", "index": 0 }]] },
+    "Prepare Returns Context": { "main": [[{ "node": "AI Customer Response Agent", "type": "main", "index": 0 }]] },
+    "Route Products": { "main": [[{ "node": "Product Search", "type": "main", "index": 0 }], [{ "node": "Route Complaint", "type": "main", "index": 0 }]] },
+    "Product Search": { "main": [[{ "node": "Prepare Product Context", "type": "main", "index": 0 }]] },
+    "Prepare Product Context": { "main": [[{ "node": "AI Customer Response Agent", "type": "main", "index": 0 }]] },
+    "Route Complaint": { "main": [[{ "node": "Create Support Ticket", "type": "main", "index": 0 }], [{ "node": "Prepare General Context", "type": "main", "index": 0 }]] },
+    "Create Support Ticket": { "main": [[{ "node": "Prepare Complaint Context", "type": "main", "index": 0 }]] },
+    "Prepare Complaint Context": { "main": [[{ "node": "AI Customer Response Agent", "type": "main", "index": 0 }]] },
+    "Prepare General Context": { "main": [[{ "node": "AI Customer Response Agent", "type": "main", "index": 0 }]] },
+    "AI Customer Response Agent": { "main": [[{ "node": "Needs Voice Callback?", "type": "main", "index": 0 }]] },
+    "Needs Voice Callback?": { "main": [[{ "node": "Sarvam Voice Handoff", "type": "main", "index": 0 }], [{ "node": "Build WhatsApp Reply", "type": "main", "index": 0 }]] },
+    "Sarvam Voice Handoff": { "main": [[{ "node": "Build WhatsApp Reply", "type": "main", "index": 0 }]] },
+    "Build WhatsApp Reply": { "main": [[{ "node": "Send WhatsApp Message", "type": "main", "index": 0 }]] },
+    "Proactive Campaign Scheduler": { "main": [[{ "node": "Fetch Proactive Queue", "type": "main", "index": 0 }]] },
+    "Fetch Proactive Queue": { "main": [[{ "node": "Normalize Proactive Queue", "type": "main", "index": 0 }]] },
+    "Normalize Proactive Queue": { "main": [[{ "node": "AI Proactive Engagement Agent", "type": "main", "index": 0 }]] },
+    "AI Proactive Engagement Agent": { "main": [[{ "node": "Build Proactive WhatsApp Payload", "type": "main", "index": 0 }]] },
+    "Build Proactive WhatsApp Payload": { "main": [[{ "node": "Send WhatsApp Message", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" }
+}

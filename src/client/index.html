@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NivaGlow · AI WhatsApp Sales & Support OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-brand">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+      </div>
+      <div class="sb-name">NivaGlow</div>
+    </div>
+    <div class="sb-sub">AI WhatsApp Sales & Support OS</div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="nav-sec">Workspace</div>
+    <div class="ni act" data-page="dashboard" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Dashboard
+    </div>
+    <div class="ni" data-page="convs" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Conversations
+      <span class="nb blue" id="navConvCount">4</span>
+    </div>
+    <div class="ni" data-page="calls" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Voice Calls
+      <span class="nb" id="navCallCount">3</span>
+    </div>
+
+    <div class="nav-sec">Marketing</div>
+    <div class="ni" data-page="templates" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Templates
+    </div>
+    <div class="ni" data-page="campaigns" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+      Campaigns
+    </div>
+
+    <div class="nav-sec">Support</div>
+    <div class="ni" data-page="tickets" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Tickets
+      <span class="nb" id="navTicketCount">2</span>
+    </div>
+
+    <div class="nav-sec">Settings</div>
+    <div class="ni" data-page="settings" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      AI Agent Settings
+    </div>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="av-row">
+      <div class="av" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff">DD</div>
+      <div>
+        <div class="av-nm">Dev Dabi</div>
+        <div class="av-rl">Admin · NivaGlow D2C</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <div class="page act" id="pg-dashboard">
+    <div class="ph">
+      <div>
+        <div class="ph-title">Dashboard</div>
+        <div class="ph-sub">Real-time WhatsApp AI Sales & Support Overview</div>
+      </div>
+      <div class="ha">
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--g);font-weight:600;background:var(--gl);padding:5px 10px;border-radius:6px;border:1px solid var(--gbg)">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--gwa);display:inline-block;box-shadow:0 0 6px var(--gwa)"></span>
+          WhatsApp Live
+        </span>
+        <button class="btn btn-o btn-sm" onclick="navByPage('convs')">💬 Open Inbox</button>
+        <button class="btn btn-p btn-sm" onclick="toggleSim(true)">+ Test Customer Message</button>
+      </div>
+    </div>
+
+    <div class="pc">
+      <!-- KPIs -->
+      <div class="kpi-row">
+        <div class="kpi" style="border-top-color:var(--pr)">
+          <div class="kpi-lbl">Total Conversations Today</div>
+          <div class="kpi-val" id="kpiTotalConvs">247</div>
+          <div class="kpi-tr tr-up">↑ 18% vs yesterday</div>
+          <div class="kpi-ic" style="background:var(--pr-l);color:var(--pr)">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+        </div>
+        <div class="kpi" style="border-top-color:var(--gwa)">
+          <div class="kpi-lbl">AI Resolution Rate</div>
+          <div class="kpi-val" id="kpiAiRate">84%</div>
+          <div class="kpi-tr tr-up">↑ 6% this week</div>
+          <div class="kpi-ic" style="background:var(--gl);color:var(--g)">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+        <div class="kpi" style="border-top-color:var(--or)">
+          <div class="kpi-lbl">Voice Escalations</div>
+          <div class="kpi-val" id="kpiVoiceCalls">11</div>
+          <div class="kpi-tr tr-dn">Sarvam AI Telephony</div>
+          <div class="kpi-ic" style="background:var(--ol);color:var(--or)">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+        </div>
+        <div class="kpi" style="border-top-color:var(--bl)">
+          <div class="kpi-lbl">AI-Assisted Revenue</div>
+          <div class="kpi-val">₹1.82L</div>
+          <div class="kpi-tr tr-up">↑ 24% this week</div>
+          <div class="kpi-ic" style="background:var(--bll);color:var(--bl)">
+            <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRID -->
+      <div class="dg">
+        <!-- Live Activity -->
+        <div class="card">
+          <div class="ch">
+            <span class="ct">Live Customer Activity</span>
+            <span class="sm t3" id="liveFeedStatus">Live stream</span>
+          </div>
+          <div class="cb" style="padding:14px 18px" id="liveFeedList">
+            <div class="ai">
+              <div class="ai-dot" style="background:var(--gwa)"></div>
+              <div>
+                <div class="ai-body"><strong>Priya Sharma</strong> — Order #GS-2024819 tracking query resolved by AI. Status shipped via BlueDart.</div>
+                <div class="ai-time">10:32 AM · order_tracking · Resolved</div>
+              </div>
+            </div>
+            <div class="ai">
+              <div class="ai-dot" style="background:var(--re)"></div>
+              <div>
+                <div class="ai-body"><strong>Vikram Singh</strong> — Damaged box complaint. Ticket #TKT-2891 raised. Sarvam voice callback scheduled.</div>
+                <div class="ai-time">09:58 AM · complaint · Voice Escalated</div>
+              </div>
+            </div>
+            <div class="ai">
+              <div class="ai-dot" style="background:var(--pu)"></div>
+              <div>
+                <div class="ai-body"><strong>Anita Joshi</strong> — Product recommendation for oily skin. Niacinamide Toner link sent.</div>
+                <div class="ai-time">09:34 AM · product_sales · Resolved</div>
+              </div>
+            </div>
+            <div class="ai">
+              <div class="ai-dot" style="background:var(--or)"></div>
+              <div>
+                <div class="ai-body"><strong>Rahul Mehta</strong> — Return request for allergic reaction. Full refund ticket #TKT-2890 approved.</div>
+                <div class="ai-time">09:15 AM · returns_refunds · In Progress</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <!-- Intent Distribution -->
+          <div class="card">
+            <div class="ch">
+              <span class="ct">Intent Distribution</span>
+              <span class="sm t3">Today</span>
+            </div>
+            <div class="cb">
+              <div class="ib">
+                <div class="ib-lbl"><span>Order Tracking</span><span>38%</span></div>
+                <div class="ib-bg"><div class="ib-fill" style="width:38%;background:var(--bl)"></div></div>
+              </div>
+              <div class="ib">
+                <div class="ib-lbl"><span>Returns / Refunds</span><span>22%</span></div>
+                <div class="ib-bg"><div class="ib-fill" style="width:22%;background:var(--or)"></div></div>
+              </div>
+              <div class="ib">
+                <div class="ib-lbl"><span>Product / Sales</span><span>19%</span></div>
+                <div class="ib-bg"><div class="ib-fill" style="width:19%;background:var(--pu)"></div></div>
+              </div>
+              <div class="ib">
+                <div class="ib-lbl"><span>Complaints</span><span>12%</span></div>
+                <div class="ib-bg"><div class="ib-fill" style="width:12%;background:var(--re)"></div></div>
+              </div>
+              <div class="ib">
+                <div class="ib-lbl"><span>General Support</span><span>9%</span></div>
+                <div class="ib-bg"><div class="ib-fill" style="width:9%;background:var(--gwa)"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="card">
+            <div class="ch"><span class="ct">AI Guardrails & Performance</span></div>
+            <div class="cb" style="padding:14px 18px">
+              <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-xs)">
+                <span class="sm t2">Avg. Response Time</span><span style="font-weight:600;font-size:13px">1.4 sec</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-xs)">
+                <span class="sm t2">Avg. CSAT Score</span><span style="font-weight:600;font-size:13px;color:var(--g)">4.3 / 5</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-xs)">
+                <span class="sm t2">Open Support Tickets</span><span style="font-weight:600;font-size:13px;color:var(--re)" id="dashOpenTickets">2</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:9px 0">
+                <span class="sm t2">Grounding Source</span><span style="font-weight:600;font-size:13px;color:var(--pr)">Shopify / D2C DB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CONVERSATIONS (SHARED INBOX) ===================== -->
+  <div class="page cl-page" id="pg-convs">
+    <!-- Conversation List -->
+    <div class="cl-list">
+      <div class="cl-hdr">
+        <input class="cl-srch" id="convSearch" type="text" placeholder="Search conversations by name or phone..." oninput="filterConvList(this.value)">
+      </div>
+      <div class="cl-scr" id="convList"></div>
+    </div>
+
+    <!-- Chat Detail -->
+    <div class="chat-wrap" id="chatWrap">
+      <div class="chat-hdr" id="chatHdr">
+        <div class="cav" id="chatAvtr" style="width:38px;height:38px;font-size:13px"></div>
+        <div class="chat-hdr-info" style="flex:1">
+          <div class="chat-hdr-nm" id="chatNm">Select a conversation</div>
+          <div class="chat-hdr-st" id="chatSt"></div>
+        </div>
+        <div id="chatBadge"></div>
+      </div>
+
+      <!-- Human Takeover Bar -->
+      <div class="takeover-bar" id="takeoverBar">
+        <div class="tob-info" id="tobInfo">
+          <span class="tob-dot" id="tobDot"></span>
+          <span id="tobText">🤖 AI Active — Auto-responding with real D2C order context</span>
+        </div>
+        <button class="btn btn-sm btn-p" id="tobBtn" onclick="toggleTakeover()">Take Over Conversation</button>
+      </div>
+
+      <!-- Chat Messages Scroll Container -->
+      <div class="chat-msgs" id="chatMsgs">
+        <div style="text-align:center;color:var(--t3);margin:auto;font-size:13px">Select a conversation from the left to view</div>
+      </div>
+
+      <!-- Human Reply Composer -->
+      <div class="chat-composer" id="chatComposer" style="display:none">
+        <input type="text" class="composer-input" id="composerInput" placeholder="Type a message as Human Agent to send on WhatsApp..." onkeydown="if(event.key==='Enter') sendHumanReply()">
+        <button class="btn btn-p" onclick="sendHumanReply()">Send Reply</button>
+      </div>
+
+      <!-- Customer Context Drawer -->
+      <div class="chat-info" id="chatInfo"></div>
+    </div>
+  </div>
+
+  <!-- ===================== VOICE CALLS ===================== -->
+  <div class="page" id="pg-calls">
+    <div class="ph">
+      <div>
+        <div class="ph-title">Voice Calls</div>
+        <div class="ph-sub">Sarvam AI Telephony — recorded escalation calls and transcripts</div>
+      </div>
+      <div class="ha">
+        <button class="btn btn-o btn-sm" onclick="loadCalls()">↻ Refresh Calls</button>
+      </div>
+    </div>
+    <div class="pc">
+      <div class="stat-mini">
+        <div class="sm-card">
+          <div class="sm-v">11</div><div class="sm-l">Calls Handled Today</div>
+        </div>
+        <div class="sm-card">
+          <div class="sm-v" style="color:var(--g)">91%</div><div class="sm-l">Resolved by Voice AI</div>
+        </div>
+        <div class="sm-card">
+          <div class="sm-v">2:28</div><div class="sm-l">Avg. Call Duration</div>
+        </div>
+      </div>
+      <div class="call-c" id="callList"></div>
+    </div>
+  </div>
+
+  <!-- ===================== TEMPLATES ===================== -->
+  <div class="page" id="pg-templates">
+    <div class="ph">
+      <div>
+        <div class="ph-title">WhatsApp Templates</div>
+        <div class="ph-sub">Approved Meta Business Cloud API templates — triggered via n8n workflows</div>
+      </div>
+    </div>
+    <div class="pc">
+      <div class="fcs" id="tplFilters">
+        <button class="fc act" data-f="all">All Templates</button>
+        <button class="fc" data-f="utility">Utility</button>
+        <button class="fc" data-f="marketing">Marketing</button>
+      </div>
+      <div class="tpl-grid" id="tplGrid"></div>
+    </div>
+  </div>
+
+  <!-- ===================== CAMPAIGNS ===================== -->
+  <div class="page" id="pg-campaigns">
+    <div class="ph">
+      <div>
+        <div class="ph-title">Proactive Campaigns</div>
+        <div class="ph-sub">AI-driven WhatsApp lifecycle messages · Automated via n8n Cron</div>
+      </div>
+    </div>
+    <div class="pc">
+      <div class="stat-mini">
+        <div class="sm-card">
+          <div class="sm-v">429</div><div class="sm-l">Recipients Today</div>
+        </div>
+        <div class="sm-card">
+          <div class="sm-v" style="color:var(--pr)">47%</div><div class="sm-l">Avg. Engagement Rate</div>
+        </div>
+        <div class="sm-card">
+          <div class="sm-v" style="color:var(--g)">4</div><div class="sm-l">Active Campaigns</div>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Customer</th><th>Phone</th><th>Campaign Type</th>
+            <th>Message Preview</th><th>Status</th><th>Revenue</th>
+          </tr></thead>
+          <tbody id="campTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TICKETS ===================== -->
+  <div class="page" id="pg-tickets">
+    <div class="ph">
+      <div>
+        <div class="ph-title">Support Tickets</div>
+        <div class="ph-sub">Escalated issues automatically registered by AI Response Agent</div>
+      </div>
+    </div>
+    <div class="pc">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Ticket ID</th><th>Customer</th><th>Issue Summary</th>
+            <th>Priority</th><th>Channel</th><th>Status</th><th>Created</th>
+          </tr></thead>
+          <tbody id="tickTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SETTINGS ===================== -->
+  <div class="page" id="pg-settings">
+    <div class="ph">
+      <div>
+        <div class="ph-title">AI Agent Settings</div>
+        <div class="ph-sub">Configure AI autonomy, tone, language, and escalation thresholds</div>
+      </div>
+      <div class="ha">
+        <button class="btn btn-p btn-sm" onclick="saveAiConfig()">Save Configuration</button>
+      </div>
+    </div>
+    <div class="pc" style="max-width:760px">
+      <div class="card" style="margin-bottom:20px">
+        <div class="ch"><span class="ct">Brand Identity & Tone</span></div>
+        <div class="cb" style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:5px">Brand / Business Name</label>
+            <input type="text" id="cfgBusinessName" class="cl-srch" value="NivaGlow">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div>
+              <label style="font-size:12px;font-weight:600;display:block;margin-bottom:5px">Agent Tone</label>
+              <select id="cfgTone" class="cl-srch">
+                <option>Friendly & Professional</option>
+                <option>Warm & Casual</option>
+                <option>Concise & Direct</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:600;display:block;margin-bottom:5px">Language Support</label>
+              <select id="cfgLang" class="cl-srch">
+                <option>English & Hinglish</option>
+                <option>English Only</option>
+                <option>Hindi (Devanagari) & English</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="ch"><span class="ct">Automated Intent Handling</span></div>
+        <div class="cb" style="display:flex;flex-direction:column;gap:12px">
+          <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="cfgOrder" checked style="width:16px;height:16px;accent-color:var(--pr)">
+            <span><strong>Order Tracking:</strong> Automatically fetch and reply with verified courier status and ETA.</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="cfgProd" checked style="width:16px;height:16px;accent-color:var(--pr)">
+            <span><strong>Product Recommendations:</strong> Recommend catalog items with prices & direct checkout links.</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="cfgReturns" checked style="width:16px;height:16px;accent-color:var(--pr)">
+            <span><strong>Returns & Exchanges:</strong> Evaluate eligibility and generate return pickup tickets.</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="cfgFaq" checked style="width:16px;height:16px;accent-color:var(--pr)">
+            <span><strong>General FAQs:</strong> Answer questions about ingredients, cruelty-free, vegan, and COD.</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><span class="ct">Human & Voice Escalation Rules</span></div>
+        <div class="cb" style="display:flex;flex-direction:column;gap:12px">
+          <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="cfgDisputes" checked style="width:16px;height:16px;accent-color:var(--re)">
+            <span><strong>Payment Disputes:</strong> Immediately pause AI and notify a human agent on payment issues.</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="cfgLegal" checked style="width:16px;height:16px;accent-color:var(--re)">
+            <span><strong>Legal / Threat Signals:</strong> Flag urgent ticket and alert senior team immediately.</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="cfgAngry" checked style="width:16px;height:16px;accent-color:var(--re)">
+            <span><strong>Voice Callback Request:</strong> Queue automated telephony callback via Sarvam Voice Agent.</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- FLOATING WHATSAPP TESTER / SIMULATOR -->
+<button class="sim-fab" onclick="toggleSim()">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/></svg>
+  Test WhatsApp AI
+</button>
+
+<div class="sim-modal" id="simModal">
+  <div class="sim-hdr">
+    <div style="display:flex;align-items:center;gap:8px">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/></svg>
+      <strong>Customer WhatsApp Simulator</strong>
+    </div>
+    <span style="cursor:pointer;font-size:18px" onclick="toggleSim(false)">✕</span>
+  </div>
+  <div class="sim-bdy">
+    <div style="font-size:11px;color:var(--t2);font-weight:600">Simulate customer message to webhook:</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div class="sim-chip" onclick="usePreset('+919876543210','Priya Sharma','Where is my order GS-2024819?')">
+        📦 <strong>Order Tracking:</strong> "Where is my order GS-2024819?"
+      </div>
+      <div class="sim-chip" onclick="usePreset('+916543210987','Vikram Singh','Mera package damaged aaya, urgently call karo!')">
+        📞 <strong>Voice Escalation:</strong> "Mera package damaged aaya, urgently call karo!"
+      </div>
+      <div class="sim-chip" onclick="usePreset('+917654321098','Anita Joshi','Oily skin ke liye koi accha toner recommend karo')">
+        🛍️ <strong>Product Sales:</strong> "Oily skin ke liye koi accha toner recommend karo"
+      </div>
+      <div class="sim-chip" onclick="usePreset('+918765432109','Rahul Mehta','Mujhe allergic reaction ho gayi hai, return process karo')">
+        🔄 <strong>Returns & Refund:</strong> "Mujhe allergic reaction ho gayi, return process karo"
+      </div>
+      <div class="sim-chip" onclick="usePreset('+915432109876','Neha Gupta','Kya aapke sabhi products cruelty-free aur vegan hain?')">
+        🐰 <strong>General Support:</strong> "Kya aapke products cruelty-free aur vegan hain?"
+      </div>
+    </div>
+
+    <div style="margin-top:6px">
+      <label style="font-size:11px;font-weight:600;display:block;margin-bottom:3px">Customer Phone & Name</label>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <input type="text" id="simPhone" class="cl-srch" value="+919876543210" style="font-size:12px;padding:6px 8px">
+        <input type="text" id="simName" class="cl-srch" value="Priya Sharma" style="font-size:12px;padding:6px 8px">
+      </div>
+      <label style="font-size:11px;font-weight:600;display:block;margin-bottom:3px">Message text</label>
+      <textarea id="simMsg" class="cl-srch" style="height:60px;resize:none;font-size:12px" placeholder="Type WhatsApp message..."></textarea>
+    </div>
+  </div>
+  <div class="sim-foot">
+    <button class="btn btn-p" style="width:100%;justify-content:center" onclick="sendSimulatedWebhook()">Send Inbound WhatsApp</button>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

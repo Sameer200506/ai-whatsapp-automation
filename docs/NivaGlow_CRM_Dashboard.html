@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NivaGlow · AI Support CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F4F6F9;--white:#FFFFFF;--border:#E2E8F0;--border-xs:#F1F5F9;
+  --t1:#0F172A;--t2:#475569;--t3:#94A3B8;
+  --pr:#4F46E5;--pr-l:#EEF2FF;--pr-d:#4338CA;
+  --g:#16A34A;--gl:#F0FDF4;--gwa:#25D366;--gbg:#DCFCE7;
+  --or:#D97706;--ol:#FFFBEB;--obg:#FEF3C7;
+  --re:#DC2626;--rl:#FEF2F2;--rbg:#FEE2E2;
+  --bl:#2563EB;--bll:#EFF6FF;--bbg:#DBEAFE;
+  --pu:#7C3AED;--pul:#F5F3FF;
+  --sw:240px;--r:8px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);display:flex;min-height:100vh;font-size:14px;line-height:1.5}
+
+/* SIDEBAR */
+.sb{width:var(--sw);min-width:var(--sw);background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:sticky;top:0}
+.sb-brand{padding:18px 16px 14px;border-bottom:1px solid var(--border-xs)}
+.sb-logo{display:flex;align-items:center;gap:9px;margin-bottom:2px}
+.sb-logo-icon{width:30px;height:30px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.sb-logo-icon svg{width:16px;height:16px;color:white;fill:none;stroke:white;stroke-width:2}
+.sb-name{font-size:15px;font-weight:700;color:var(--t1)}
+.sb-sub{font-size:11px;color:var(--t3);margin-left:39px}
+.sb-nav{padding:10px 10px;flex:1;overflow-y:auto}
+.nav-sec{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.06em;padding:12px 6px 5px;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;cursor:pointer;color:var(--t2);font-size:13px;font-weight:500;margin-bottom:1px;transition:all .12s;user-select:none}
+.ni:hover{background:var(--border-xs);color:var(--t1)}
+.ni.act{background:var(--pr-l);color:var(--pr)}
+.ni.act .ni-ic{color:var(--pr)}
+.ni-ic{width:17px;height:17px;flex-shrink:0;color:var(--t3);fill:none;stroke:currentColor;stroke-width:1.8}
+.nb{margin-left:auto;background:var(--re);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;min-width:18px;text-align:center}
+.nb.blue{background:var(--pr)}
+.sb-foot{padding:14px 12px;border-top:1px solid var(--border-xs)}
+.av-row{display:flex;align-items:center;gap:9px}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.av-nm{font-size:12.5px;font-weight:600}
+.av-rl{font-size:11px;color:var(--t3)}
+
+/* MAIN */
+.main{flex:1;min-width:0;overflow-x:hidden}
+.page{display:none}
+.page.act{display:block}
+
+/* PAGE HEADER */
+.ph{background:var(--white);border-bottom:1px solid var(--border);padding:14px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.ph-title{font-size:17px;font-weight:700;color:var(--t1)}
+.ph-sub{font-size:12px;color:var(--t3);margin-top:1px}
+.ha{display:flex;gap:9px;align-items:center}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .12s;font-family:inherit}
+.btn-p{background:var(--pr);color:#fff}
+.btn-p:hover{background:var(--pr-d)}
+.btn-o{background:var(--white);color:var(--t2);border:1px solid var(--border)}
+.btn-o:hover{background:var(--bg)}
+.btn-sm{padding:5px 11px;font-size:12px}
+
+/* CONTENT */
+.pc{padding:22px 26px}
+
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:99px;font-size:11.5px;font-weight:500;white-space:nowrap}
+.bdg-g{background:var(--gbg);color:var(--g)}
+.bdg-o{background:var(--obg);color:var(--or)}
+.bdg-r{background:var(--rbg);color:var(--re)}
+.bdg-b{background:var(--bbg);color:var(--bl)}
+.bdg-p{background:var(--pul);color:var(--pu)}
+.bdg-gray{background:var(--border-xs);color:var(--t2)}
+.bdg-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.ch{padding:14px 18px;border-bottom:1px solid var(--border-xs);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:13.5px;font-weight:600;color:var(--t1)}
+.cb{padding:18px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-lbl{font-size:11.5px;color:var(--t3);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.kpi-val{font-size:28px;font-weight:700;color:var(--t1);line-height:1;margin-bottom:5px}
+.kpi-tr{font-size:12px;font-weight:500;display:flex;align-items:center;gap:3px}
+.tr-up{color:var(--g)}
+.tr-dn{color:var(--re)}
+.kpi-ic{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.kpi-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}
+
+/* DASH GRID */
+.dg{display:grid;grid-template-columns:1.8fr 1fr;gap:18px}
+
+/* ACTIVITY */
+.ai{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--border-xs);align-items:flex-start}
+.ai:last-child{border-bottom:none;padding-bottom:0}
+.ai-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.ai-body{font-size:13px;color:var(--t2);line-height:1.5}
+.ai-body strong{color:var(--t1)}
+.ai-time{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* INTENT BAR */
+.ib{margin-bottom:13px}
+.ib-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--t2);margin-bottom:5px}
+.ib-lbl span:last-child{font-weight:600;color:var(--t1)}
+.ib-bg{height:6px;background:var(--border-xs);border-radius:99px;overflow:hidden}
+.ib-fill{height:100%;border-radius:99px}
+
+/* CONVERSATIONS PAGE */
+.cl-page{display:none;height:calc(100vh - 61px)}
+.cl-page.act{display:grid;grid-template-columns:330px 1fr}
+.cl-list{border-right:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;overflow:hidden}
+.cl-hdr{padding:14px;border-bottom:1px solid var(--border-xs)}
+.cl-srch{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--t1);outline:none}
+.cl-srch:focus{border-color:var(--pr)}
+.cl-scr{flex:1;overflow-y:auto}
+.ci{padding:13px 14px;cursor:pointer;border-bottom:1px solid var(--border-xs);display:flex;gap:11px;align-items:flex-start;transition:background .1s}
+.ci:hover{background:var(--bg)}
+.ci.sel{background:var(--pr-l)}
+.cav{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;color:#fff}
+.ci-meta{flex:1;min-width:0}
+.ci-nm{font-size:13px;font-weight:600;color:var(--t1)}
+.ci-pv{font-size:12px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.ci-rt{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.ci-tm{font-size:11px;color:var(--t3)}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;background:#F0F2F5;height:100%}
+.chat-hdr{background:var(--white);border-bottom:1px solid var(--border);padding:11px 18px;display:flex;align-items:center;gap:11px;flex-shrink:0}
+.chat-hdr-nm{font-size:14.5px;font-weight:600}
+.chat-hdr-st{font-size:12px;color:var(--t3)}
+.chat-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px}
+.mg{display:flex;flex-direction:column;gap:3px}
+.mg-c{align-items:flex-start}
+.mg-a{align-items:flex-end}
+.mg-sndr{font-size:10.5px;font-weight:600;color:var(--t3);padding:0 3px}
+.mb{max-width:72%;padding:9px 12px;border-radius:12px;font-size:13px;line-height:1.55;white-space:pre-line;word-wrap:break-word}
+.mb-c{background:var(--white);color:var(--t1);border-bottom-left-radius:3px;box-shadow:0 1px 2px rgba(0,0,0,.07)}
+.mb-a{background:#D9FDD3;color:#111827;border-bottom-right-radius:3px}
+.mb-tm{font-size:10px;color:var(--t3);padding:0 3px}
+.mb-tm.a{color:#667085}
+.chat-info{background:var(--white);border-top:1px solid var(--border);padding:10px 18px;display:flex;gap:24px;align-items:center;flex-shrink:0;flex-wrap:wrap}
+.cii{display:flex;flex-direction:column}
+.cii-lb{font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.cii-vl{font-size:12.5px;font-weight:500;color:var(--t1);margin-top:2px}
+
+/* VOICE CALLS */
+.call-c{display:flex;flex-direction:column;gap:14px}
+.call-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.call-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;color:#fff}
+.call-inf{min-width:160px}
+.call-nm{font-size:13.5px;font-weight:600}
+.call-mt{font-size:12px;color:var(--t3);margin-top:2px}
+.call-mt span{margin-right:10px}
+.aplayer{display:flex;align-items:center;gap:10px;flex:1;min-width:280px}
+.pbtn{width:36px;height:36px;border-radius:50%;background:var(--pr);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s}
+.pbtn:hover{background:var(--pr-d)}
+.pbtn svg{width:14px;height:14px;fill:currentColor}
+.wf-wrap{flex:1;display:flex;flex-direction:column;gap:3px;cursor:pointer}
+.wf{display:flex;align-items:center;height:36px;gap:2px}
+.wfb{width:3px;border-radius:2px;background:#CBD5E1;transition:background .08s;flex-shrink:0}
+.wfb.pl{background:var(--pr)}
+.at{font-size:11px;color:var(--t3);font-variant-numeric:tabular-nums;white-space:nowrap;min-width:72px;text-align:right}
+.call-st{flex-shrink:0}
+
+/* TEMPLATES */
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tpl-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.tpl-hdr{padding:13px 15px 10px;border-bottom:1px solid var(--border-xs);display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.tpl-nm{font-size:13px;font-weight:600}
+.tpl-cat{font-size:11px;color:var(--t3);margin-top:2px}
+.tpl-prev{margin:12px;padding:12px;background:#F0F9F0;border-radius:7px;font-size:12.5px;color:#1A3A1A;line-height:1.6;border:1px solid #C3E6CB}
+.tpl-foot{padding:12px 15px;display:flex;gap:0;border-top:1px solid var(--border-xs)}
+.ts{flex:1;text-align:center}
+.ts-v{font-size:16px;font-weight:700;color:var(--t1)}
+.ts-l{font-size:10.5px;color:var(--t3)}
+.ts+.ts{border-left:1px solid var(--border-xs)}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;padding:10px 15px;border-bottom:1px solid var(--border-xs);white-space:nowrap}
+td{padding:12px 15px;font-size:13px;border-bottom:1px solid var(--border-xs);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--bg)}
+
+/* FILTER CHIPS */
+.fcs{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+.fc{padding:5px 12px;border-radius:99px;font-size:12.5px;font-weight:500;border:1px solid var(--border);cursor:pointer;background:var(--white);color:var(--t2);transition:all .12s;font-family:inherit}
+.fc:hover{border-color:var(--pr);color:var(--pr)}
+.fc.act{background:var(--pr);color:#fff;border-color:var(--pr)}
+
+/* MISC */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.flex{display:flex}.ic{align-items:center}.gap8{gap:8px}.gap12{gap:12px}
+.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}
+.fw6{font-weight:600}.t2{color:var(--t2)}.t3{color:var(--t3)}.sm{font-size:12px}
+.tbl-wrap{border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--white)}
+.stat-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.sm-card{background:var(--white);border:1px solid var(--border);border-radius:9px;padding:14px 16px}
+.sm-v{font-size:22px;font-weight:700;color:var(--t1)}
+.sm-l{font-size:11.5px;color:var(--t3);margin-top:3px}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-brand">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+      </div>
+      <div class="sb-name">NivaGlow</div>
+    </div>
+    <div class="sb-sub">AI Customer Support CRM</div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="nav-sec">Workspace</div>
+    <div class="ni act" data-page="dashboard" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Dashboard
+    </div>
+    <div class="ni" data-page="convs" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Conversations
+      <span class="nb blue">3</span>
+    </div>
+    <div class="ni" data-page="calls" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Voice Calls
+      <span class="nb">3</span>
+    </div>
+    <div class="nav-sec">Marketing</div>
+    <div class="ni" data-page="templates" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Templates
+    </div>
+    <div class="ni" data-page="campaigns" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+      Campaigns
+    </div>
+    <div class="nav-sec">Support</div>
+    <div class="ni" data-page="tickets" onclick="nav(this)">
+      <svg class="ni-ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Tickets
+      <span class="nb">2</span>
+    </div>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="av-row">
+      <div class="av" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff">DD</div>
+      <div>
+        <div class="av-nm">Dev Dabi</div>
+        <div class="av-rl">Admin · Replora</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+<!-- ===================== DASHBOARD ===================== -->
+<div class="page act" id="pg-dashboard">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Dashboard</div>
+      <div class="ph-sub">Tuesday, 8 Sep 2026 · WhatsApp AI Support Overview</div>
+    </div>
+    <div class="ha">
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--g);font-weight:500;background:var(--gl);padding:5px 10px;border-radius:6px;border:1px solid var(--gbg)">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--gwa);display:inline-block"></span>
+        WhatsApp Live
+      </span>
+      <button class="btn btn-o btn-sm">↓ Export Report</button>
+      <button class="btn btn-p btn-sm">+ New Campaign</button>
+    </div>
+  </div>
+  <div class="pc">
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi" style="border-top-color:var(--pr)">
+        <div class="kpi-lbl">Total Conversations Today</div>
+        <div class="kpi-val">247</div>
+        <div class="kpi-tr tr-up">↑ 18% vs yesterday</div>
+        <div class="kpi-ic" style="background:var(--pr-l);color:var(--pr)">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--gwa)">
+        <div class="kpi-lbl">AI Resolution Rate</div>
+        <div class="kpi-val">84%</div>
+        <div class="kpi-tr tr-up">↑ 6% this week</div>
+        <div class="kpi-ic" style="background:var(--gl);color:var(--g)">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--or)">
+        <div class="kpi-lbl">Voice Escalations</div>
+        <div class="kpi-val">11</div>
+        <div class="kpi-tr tr-dn">↑ 3 from yesterday</div>
+        <div class="kpi-ic" style="background:var(--ol);color:var(--or)">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+      </div>
+      <div class="kpi" style="border-top-color:var(--bl)">
+        <div class="kpi-lbl">Proactive Messages Sent</div>
+        <div class="kpi-val">1,342</div>
+        <div class="kpi-tr tr-up">↑ 24% this week</div>
+        <div class="kpi-ic" style="background:var(--bll);color:var(--bl)">
+          <svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="dg">
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="ch">
+          <span class="ct">Recent Activity</span>
+          <span class="sm t3">Live feed</span>
+        </div>
+        <div class="cb" style="padding:14px 18px">
+          <div class="ai">
+            <div class="ai-dot" style="background:var(--gwa)"></div>
+            <div>
+              <div class="ai-body"><strong>Priya Sharma</strong> — Order #GS-2024819 query resolved by AI. Shipping status delivered via WhatsApp.</div>
+              <div class="ai-time">10:32 AM · order_tracking · Resolved</div>
+            </div>
+          </div>
+          <div class="ai">
+            <div class="ai-dot" style="background:var(--re)"></div>
+            <div>
+              <div class="ai-body"><strong>Vikram Singh</strong> — Damaged package complaint. Ticket #TKT-2891 created. Sarvam voice callback scheduled.</div>
+              <div class="ai-time">09:58 AM · complaint · Voice Escalated</div>
+            </div>
+          </div>
+          <div class="ai">
+            <div class="ai-dot" style="background:var(--pu)"></div>
+            <div>
+              <div class="ai-body"><strong>Anita Joshi</strong> — Product recommendation for oily skin. Niacinamide Toner recommended with checkout link.</div>
+              <div class="ai-time">09:34 AM · product_sales · Resolved</div>
+            </div>
+          </div>
+          <div class="ai">
+            <div class="ai-dot" style="background:var(--or)"></div>
+            <div>
+              <div class="ai-body"><strong>Rahul Mehta</strong> — Return request due to allergic reaction. Ticket #TKT-2890 raised. Voice call completed.</div>
+              <div class="ai-time">09:15 AM · returns_refunds · In Progress</div>
+            </div>
+          </div>
+          <div class="ai">
+            <div class="ai-dot" style="background:var(--bl)"></div>
+            <div>
+              <div class="ai-body"><strong>Campaign Fired</strong> — Abandoned cart reminders sent to 47 customers (Vitamin C Serum batch).</div>
+              <div class="ai-time">08:00 AM · proactive · abandoned_cart</div>
+            </div>
+          </div>
+          <div class="ai">
+            <div class="ai-dot" style="background:var(--gwa)"></div>
+            <div>
+              <div class="ai-body"><strong>Neha Gupta</strong> — Cruelty-free ingredients query handled by AI. Full policy response sent.</div>
+              <div class="ai-time">Yesterday 11:40 PM · general_support · Resolved</div>
+            </div>
+          </div>
+          <div class="ai">
+            <div class="ai-dot" style="background:var(--g)"></div>
+            <div>
+              <div class="ai-body"><strong>Sunita Agrawal</strong> — Order #GS-2024801 delivery confirmed. Review request template scheduled.</div>
+              <div class="ai-time">Yesterday 09:30 AM · order_tracking · Resolved</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <!-- Intent Distribution -->
+        <div class="card">
+          <div class="ch">
+            <span class="ct">Intent Distribution</span>
+            <span class="sm t3">Today</span>
+          </div>
+          <div class="cb">
+            <div class="ib">
+              <div class="ib-lbl"><span>Order Tracking</span><span>38%</span></div>
+              <div class="ib-bg"><div class="ib-fill" style="width:38%;background:var(--bl)"></div></div>
+            </div>
+            <div class="ib">
+              <div class="ib-lbl"><span>Returns / Refunds</span><span>22%</span></div>
+              <div class="ib-bg"><div class="ib-fill" style="width:22%;background:var(--or)"></div></div>
+            </div>
+            <div class="ib">
+              <div class="ib-lbl"><span>Product / Sales</span><span>19%</span></div>
+              <div class="ib-bg"><div class="ib-fill" style="width:19%;background:var(--pu)"></div></div>
+            </div>
+            <div class="ib">
+              <div class="ib-lbl"><span>Complaints</span><span>12%</span></div>
+              <div class="ib-bg"><div class="ib-fill" style="width:12%;background:var(--re)"></div></div>
+            </div>
+            <div class="ib">
+              <div class="ib-lbl"><span>General Support</span><span>9%</span></div>
+              <div class="ib-bg"><div class="ib-fill" style="width:9%;background:var(--gwa)"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="card">
+          <div class="ch"><span class="ct">AI Performance</span></div>
+          <div class="cb" style="padding:14px 18px">
+            <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-xs)">
+              <span class="sm t2">Avg. Response Time</span><span style="font-weight:600;font-size:13px">1.4 sec</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-xs)">
+              <span class="sm t2">Avg. CSAT Score</span><span style="font-weight:600;font-size:13px;color:var(--g)">4.3 / 5</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-xs)">
+              <span class="sm t2">Open Tickets</span><span style="font-weight:600;font-size:13px;color:var(--re)">2</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-xs)">
+              <span class="sm t2">Voice Calls Today</span><span style="font-weight:600;font-size:13px">11</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:9px 0">
+              <span class="sm t2">Templates Sent</span><span style="font-weight:600;font-size:13px">1,342</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CONVERSATIONS ===================== -->
+<div class="page cl-page" id="pg-convs">
+  <!-- Conversation List -->
+  <div class="cl-list">
+    <div class="cl-hdr">
+      <input class="cl-srch" type="text" placeholder="Search conversations...">
+    </div>
+    <div class="cl-scr" id="convList"></div>
+  </div>
+
+  <!-- Chat Detail -->
+  <div class="chat-wrap" id="chatWrap">
+    <div class="chat-hdr" id="chatHdr">
+      <div class="cav" id="chatAvtr" style="width:36px;height:36px;font-size:12px"></div>
+      <div class="chat-hdr-info" style="flex:1">
+        <div class="chat-hdr-nm" id="chatNm">Select a conversation</div>
+        <div class="chat-hdr-st" id="chatSt"></div>
+      </div>
+      <div id="chatBadge"></div>
+    </div>
+    <div class="chat-msgs" id="chatMsgs">
+      <div style="text-align:center;color:var(--t3);margin:auto;font-size:13px">← Select a conversation to view</div>
+    </div>
+    <div class="chat-info" id="chatInfo"></div>
+  </div>
+</div>
+
+<!-- ===================== VOICE CALLS ===================== -->
+<div class="page" id="pg-calls">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Voice Calls</div>
+      <div class="ph-sub">Sarvam AI Voice — recorded escalation calls</div>
+    </div>
+    <div class="ha">
+      <button class="btn btn-o btn-sm">↓ Download All</button>
+    </div>
+  </div>
+  <div class="pc">
+    <div class="stat-mini">
+      <div class="sm-card">
+        <div class="sm-v">11</div><div class="sm-l">Calls Today</div>
+      </div>
+      <div class="sm-card">
+        <div class="sm-v" style="color:var(--g)">91%</div><div class="sm-l">Resolved by Voice AI</div>
+      </div>
+      <div class="sm-card">
+        <div class="sm-v">2:28</div><div class="sm-l">Avg. Call Duration</div>
+      </div>
+    </div>
+    <div class="call-c" id="callList"></div>
+  </div>
+</div>
+
+<!-- ===================== TEMPLATES ===================== -->
+<div class="page" id="pg-templates">
+  <div class="ph">
+    <div>
+      <div class="ph-title">WhatsApp Templates</div>
+      <div class="ph-sub">Approved Meta Business templates — sent via n8n workflow</div>
+    </div>
+    <div class="ha">
+      <button class="btn btn-p btn-sm">+ New Template</button>
+    </div>
+  </div>
+  <div class="pc">
+    <div class="fcs" id="tplFilters">
+      <button class="fc act" data-f="all">All Templates</button>
+      <button class="fc" data-f="utility">Utility</button>
+      <button class="fc" data-f="marketing">Marketing</button>
+      <button class="fc" data-f="authentication">Auth</button>
+    </div>
+    <div class="tpl-grid" id="tplGrid"></div>
+  </div>
+</div>
+
+<!-- ===================== CAMPAIGNS ===================== -->
+<div class="page" id="pg-campaigns">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Proactive Campaigns</div>
+      <div class="ph-sub">AI-driven WhatsApp lifecycle messages · Scheduled via n8n Cron</div>
+    </div>
+    <div class="ha">
+      <button class="btn btn-p btn-sm">+ New Campaign</button>
+    </div>
+  </div>
+  <div class="pc">
+    <div class="stat-mini">
+      <div class="sm-card">
+        <div class="sm-v">429</div><div class="sm-l">Recipients Today</div>
+      </div>
+      <div class="sm-card">
+        <div class="sm-v" style="color:var(--pr)">47%</div><div class="sm-l">Avg. Engagement Rate</div>
+      </div>
+      <div class="sm-card">
+        <div class="sm-v" style="color:var(--g)">3</div><div class="sm-l">Active Campaigns</div>
+      </div>
+    </div>
+    <div class="fcs" id="campFilters">
+      <button class="fc act" data-f="all">All</button>
+      <button class="fc" data-f="cart">Abandoned Cart</button>
+      <button class="fc" data-f="cod">COD Confirm</button>
+      <button class="fc" data-f="post">Post Purchase</button>
+      <button class="fc" data-f="review">Review Request</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Customer</th><th>Phone</th><th>Campaign Type</th>
+          <th>Message Preview</th><th>Sent At</th><th>Status</th>
+        </tr></thead>
+        <tbody id="campTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TICKETS ===================== -->
+<div class="page" id="pg-tickets">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Support Tickets</div>
+      <div class="ph-sub">Escalated issues from AI Customer Response Agent</div>
+    </div>
+    <div class="ha">
+      <button class="btn btn-o btn-sm">Filter</button>
+    </div>
+  </div>
+  <div class="pc">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Ticket ID</th><th>Customer</th><th>Issue</th>
+          <th>Priority</th><th>Channel</th><th>Status</th><th>Created</th>
+        </tr></thead>
+        <tbody id="tickTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+/* ===== DATA ===== */
+const convData = [
+  {
+    id:'c1',name:'Priya Sharma',phone:'+91 98765 43210',ini:'PS',color:'#F97316',
+    badge:'order_tracking',bclass:'bdg-b',status:'Resolved',sclass:'bdg-g',
+    time:'10:32 AM',preview:'Thank you! Kal aa jayega mera order 😊',
+    intent:'order_tracking',msgCnt:5,
+    msgs:[
+      {r:'c',txt:'Hello, mera order kab aayega? Order ID: GS-2024819',tm:'10:28 AM'},
+      {r:'a',txt:'Hi Priya! 👋 Aapka order check kar liya:\n\n📦 Order #GS-2024819\n🛍️ Vitamin C Radiance Serum (30ml)\n🚚 Status: Shipped ✅\n📅 Expected: Kal (Tomorrow) by 7 PM\n🔍 Tracking: BlueDart — BD9834521\n\nKoi aur help chahiye?',tm:'10:29 AM'},
+      {r:'c',txt:'Thanks! COD hai, cancel ho sakta hai kya?',tm:'10:31 AM'},
+      {r:'a',txt:'Hi Priya! COD order cancel possible hai agar "Processing" status mein ho. Aapka order already shipped hai (in-transit), toh ab cancel nahi hoga 😊\n\nDelivery pe koi issue ho toh please batayein — hum refund ya replacement immediately process karenge!',tm:'10:31 AM'},
+      {r:'c',txt:'Thank you! Kal aa jayega mera order 😊',tm:'10:32 AM'},
+    ]
+  },
+  {
+    id:'c2',name:'Vikram Singh',phone:'+91 65432 10987',ini:'VS',color:'#EF4444',
+    badge:'complaint',bclass:'bdg-r',status:'Voice Escalated',sclass:'bdg-o',
+    time:'02:14 PM',preview:'Thik hai, call ka wait karunga',
+    intent:'complaint_ticket',msgCnt:6,
+    msgs:[
+      {r:'c',txt:'Mera package damaged condition mein aaya. Box bilkul crush hua tha.',tm:'02:08 PM'},
+      {r:'a',txt:'Hi Vikram ji! Bahut sorry for this experience 🙏\n\nAapki complaint note kar li hai:\n🎫 Ticket: #TKT-2891 (High Priority)\n\nKya aap packaging ki photo share kar sakte hain? Hum refund/replacement immediately process karenge.',tm:'02:09 PM'},
+      {r:'c',txt:'Photo bhej raha hoon. [📷 Photo attached]',tm:'02:11 PM'},
+      {r:'a',txt:'Thank you Vikram ji! Photo mil gayi ✅\n\nAapka case high priority mark kar diya hai. Ek Sarvam AI voice call aayegi shortly jismein ek trained specialist aapki replacement process karega.\n\n⏰ Estimated resolution: 24-48 hours',tm:'02:12 PM'},
+      {r:'c',txt:'Thik hai, call ka wait karunga',tm:'02:14 PM'},
+      {r:'a',txt:'Bilkul Vikram ji! ✅ Voice callback scheduled hai. Ek specialist jaldi hi connect hoga. Aapke patience ke liye thank you 🙏',tm:'02:14 PM'},
+    ]
+  },
+  {
+    id:'c3',name:'Anita Joshi',phone:'+91 76543 21098',ini:'AJ',color:'#8B5CF6',
+    badge:'product_sales',bclass:'bdg-p',status:'Resolved',sclass:'bdg-g',
+    time:'Yesterday',preview:'Add to cart kar diya! Thanks 😍',
+    intent:'product_recommendation_sales',msgCnt:4,
+    msgs:[
+      {r:'c',txt:'Oily skin ke liye koi accha serum recommend karo',tm:'04:20 PM'},
+      {r:'a',txt:'Hi Anita! Oily skin ke liye best options:\n\n⭐ Niacinamide Pore-Refining Toner — ₹599\n• Pores tighten karta hai\n• Oil control ke liye perfect\n• Non-comedogenic formula\n🔗 Shop: nivaglow.in/niacinamide\n\n⭐ Vitamin C Radiance Serum — ₹899\n• Brightness boost + oil balance\n🔗 Shop: nivaglow.in/vitc\n\nKaunsa prefer karoge?',tm:'04:22 PM'},
+      {r:'c',txt:'Niacinamide wala try karna chahti hoon. COD available hai?',tm:'04:23 PM'},
+      {r:'a',txt:'Haan Anita! COD available hai ✅ Niacinamide Pore-Refining Toner (₹599) ke liye COD full India mein available hai. Free shipping above ₹499! 🎉\n\nYahan se order karein: nivaglow.in/niacinamide\n\nAur kuch chahiye?',tm:'04:23 PM'},
+      {r:'c',txt:'Add to cart kar diya! Thanks 😍',tm:'04:25 PM'},
+    ]
+  },
+  {
+    id:'c4',name:'Rahul Mehta',phone:'+91 87654 32109',ini:'RM',color:'#3B82F6',
+    badge:'returns_refunds',bclass:'bdg-b',status:'In Progress',sclass:'bdg-o',
+    time:'09:15 AM',preview:'Thik hai refund ka wait karunga',
+    intent:'returns_refunds_exchanges',msgCnt:5,
+    msgs:[
+      {r:'c',txt:'Mujhe product se allergic reaction ho gayi hai. Return karna hai.',tm:'09:10 AM'},
+      {r:'a',txt:'Hi Rahul! Bahut sorry to hear this 🙏 Aapki health sabse pehle.\n\nReturn eligibility:\n✅ Allergic reaction — full refund eligible\n⏰ Refund timeline: 5-7 business days\n\nKya aap batch number share kar sakte hain jo packaging pe hoga?',tm:'09:11 AM'},
+      {r:'c',txt:'Batch: NG-2024-B47. Reaction 2 din mein start hui.',tm:'09:13 AM'},
+      {r:'a',txt:'Thank you Rahul! Batch #NG-2024-B47 noted.\n\n🎫 Return Ticket: #TKT-2890 created\n💰 Full Refund: ₹899 approved\n📦 Pickup: Scheduled within 2 days\n\nEk Sarvam specialist call karega aaj dopahar tak process complete karne ke liye.',tm:'09:14 AM'},
+      {r:'c',txt:'Thik hai refund ka wait karunga',tm:'09:15 AM'},
+    ]
+  },
+  {
+    id:'c5',name:'Neha Gupta',phone:'+91 54321 09876',ini:'NG',color:'#10B981',
+    badge:'general_support',bclass:'bdg-gray',status:'Resolved',sclass:'bdg-g',
+    time:'Yesterday',preview:'Thank you for the info! 🙏',
+    intent:'general_support',msgCnt:3,
+    msgs:[
+      {r:'c',txt:'Kya aapke products cruelty-free hain? And vegan bhi?',tm:'11:38 AM'},
+      {r:'a',txt:'Hi Neha! Haan, NivaGlow ke sare products:\n\n🐰 100% Cruelty-Free — No animal testing\n🌱 Vegan Formula — No animal-derived ingredients\n♻️ Eco-friendly packaging\n✅ PETA certified\n\nAgar specific ingredients ke baare mein janna ho toh batayein!',tm:'11:40 AM'},
+      {r:'c',txt:'Thank you for the info! 🙏',tm:'11:41 AM'},
+    ]
+  },
+  {
+    id:'c6',name:'Arjun Patel',phone:'+91 43210 98765',ini:'AP',color:'#6366F1',
+    badge:'proactive',bclass:'bdg-p',status:'Proactive Sent',sclass:'bdg-b',
+    time:'08:00 AM',preview:'Haan mujhe woh serum chahiye, order karta...',
+    intent:'abandoned_cart',msgCnt:3,
+    msgs:[
+      {r:'a',txt:'Hi Arjun! 👋 Aapne Vitamin C Radiance Serum ko cart mein add kiya tha.\n\n⚡ Limited Stock Alert!\n🛒 Cart mein rakha hai: Vitamin C Radiance Serum — ₹899\n\nAaj order karein aur FREE shipping payen! Offer sirf aaj ke liye hai.\n🔗 Checkout: nivaglow.in/cart',tm:'08:00 AM'},
+      {r:'c',txt:'Haan mujhe woh serum chahiye, order karta hoon',tm:'08:23 AM'},
+      {r:'a',txt:'Bahut badhiya Arjun! 🎉 Aapka order processing shuru ho jayega. Payment ke liye: nivaglow.in/cart\n\nKoi help chahiye order process mein?',tm:'08:24 AM'},
+    ]
+  }
+];
+
+const callData = [
+  {
+    id:'v1',name:'Vikram Singh',phone:'+91 65432 10987',ini:'VS',color:'#EF4444',
+    reason:'Damaged Package Complaint',ticket:'#TKT-2891',
+    date:'Today, 02:18 PM',dur:'2:34',durSec:154,
+    outcome:'Replacement approved. Pickup scheduled.',
+    status:'Resolved',sclass:'bdg-g'
+  },
+  {
+    id:'v2',name:'Rahul Mehta',phone:'+91 87654 32109',ini:'RM',color:'#3B82F6',
+    reason:'Return Process — Allergic Reaction',ticket:'#TKT-2890',
+    date:'Today, 09:18 AM',dur:'1:47',durSec:107,
+    outcome:'Full refund approved. Return pickup in 2 days.',
+    status:'Resolved',sclass:'bdg-g'
+  },
+  {
+    id:'v3',name:'Pooja Verma',phone:'+91 91234 56789',ini:'PV',color:'#EC4899',
+    reason:'Delivery Delay Inquiry',ticket:'#TKT-2888',
+    date:'Yesterday, 3:45 PM',dur:'3:12',durSec:192,
+    outcome:'Delivery rescheduled. ₹100 goodwill voucher issued.',
+    status:'Resolved',sclass:'bdg-g'
+  }
+];
+
+const tplData = [
+  {
+    name:'Order Confirmed',cat:'utility',status:'Approved',sc:'bdg-g',
+    prev:'Hi {{1}}! 🎉 Your order #{{2}} has been confirmed.\n\nProduct: {{3}}\nTotal: ₹{{4}}\nDelivery: {{5}} days\n\nTrack your order at nivaglow.in/track\n\nThank you for shopping with NivaGlow! 🌿',
+    sent:1247,dlv:'98%',read:'76%'
+  },
+  {
+    name:'Shipping Update',cat:'utility',status:'Approved',sc:'bdg-g',
+    prev:'Hi {{1}}! Your order #{{2}} has been shipped! 🚚\n\nCourier: {{3}}\nTracking: {{4}}\nExpected: {{5}}\n\nTrack live at nivaglow.in/track',
+    sent:1189,dlv:'97%',read:'82%'
+  },
+  {
+    name:'COD Confirmation',cat:'utility',status:'Approved',sc:'bdg-g',
+    prev:'Hi {{1}}! Please confirm your COD order #{{2}} for ₹{{3}}.\n\nReply YES to confirm\nReply NO to cancel\n\nOrder will be dispatched after confirmation ✅',
+    sent:342,dlv:'99%',read:'91%'
+  },
+  {
+    name:'Abandoned Cart',cat:'marketing',status:'Approved',sc:'bdg-g',
+    prev:'Hi {{1}}! 👀 You left something behind!\n\n🛒 {{2}} is in your cart — {{3}} left in stock.\n\nComplete your order before it sells out! 🔗 nivaglow.in/cart\n\nCode SAVE10 for 10% off!',
+    sent:987,dlv:'96%',read:'54%'
+  },
+  {
+    name:'Review Request',cat:'marketing',status:'Approved',sc:'bdg-g',
+    prev:'Hi {{1}}! 🌟 How are you liking your {{2}}?\n\nYour feedback means the world to us!\n\nTap below to leave a review and help others ⭐⭐⭐⭐⭐\n🔗 nivaglow.in/review/{{3}}',
+    sent:654,dlv:'97%',read:'43%'
+  },
+  {
+    name:'Reorder Reminder',cat:'marketing',status:'Approved',sc:'bdg-g',
+    prev:'Hi {{1}}! ⏰ Running low on {{2}}?\n\nBased on your usage, it might be time to restock!\n\nOrder now and get FREE shipping today 🚀\n🔗 nivaglow.in/reorder/{{3}}',
+    sent:421,dlv:'95%',read:'38%'
+  }
+];
+
+const campData = [
+  {cust:'Arjun Patel',phone:'+91 43210 98765',type:'abandoned_cart',label:'Abandoned Cart',lclass:'bdg-p',
+   prev:'You left Vitamin C Serum in your cart — limited stock!',sent:'Today 08:00 AM',status:'Delivered',sclass:'bdg-g',cat:'cart'},
+  {cust:'Meera Nair',phone:'+91 77890 12345',type:'abandoned_cart',label:'Abandoned Cart',lclass:'bdg-p',
+   prev:'Your SPF 50 UV Shield is waiting in cart!',sent:'Today 08:00 AM',status:'Delivered',sclass:'bdg-g',cat:'cart'},
+  {cust:'Sanjay Kumar',phone:'+91 99123 45678',type:'cod_confirmation',label:'COD Confirm',lclass:'bdg-o',
+   prev:'Please confirm your COD order #GS-2024831 for ₹1,299',sent:'Today 10:00 AM',status:'Confirmed',sclass:'bdg-g',cat:'cod'},
+  {cust:'Kavita Singh',phone:'+91 88901 23456',type:'delivery_reminder',label:'Delivery Reminder',lclass:'bdg-b',
+   prev:'Your order is arriving today between 2–6 PM!',sent:'Today 09:00 AM',status:'Delivered',sclass:'bdg-g',cat:'post'},
+  {cust:'Sunita Agrawal',phone:'+91 55678 90123',type:'review_request',label:'Review Request',lclass:'bdg-gray',
+   prev:'How are you liking your Hyaluronic Acid Moisturizer?',sent:'Yesterday 06:00 PM',status:'Replied',sclass:'bdg-g',cat:'review'},
+  {cust:'Raj Kumar',phone:'+91 44567 89012',type:'reorder_reminder',label:'Reorder Reminder',lclass:'bdg-p',
+   prev:'Running low on Niacinamide Toner? Restock now!',sent:'Yesterday 08:00 AM',status:'Delivered',sclass:'bdg-g',cat:'post'},
+  {cust:'Divya Sharma',phone:'+91 33456 78901',type:'post_purchase',label:'Post Purchase',lclass:'bdg-b',
+   prev:'Thank you for your order! Here are some tips for your new serum',sent:'Yesterday 12:00 PM',status:'Read',sclass:'bdg-g',cat:'post'},
+  {cust:'Amit Verma',phone:'+91 22345 67890',type:'abandoned_cart',label:'Abandoned Cart',lclass:'bdg-p',
+   prev:'Your Vitamin C Serum cart is expiring soon!',sent:'2 days ago',status:'No Response',sclass:'bdg-gray',cat:'cart'},
+];
+
+const tickData = [
+  {id:'TKT-2891',cust:'Vikram Singh',issue:'Damaged package — Vitamin C Serum',pri:'High',pcls:'bdg-r',chan:'WhatsApp + Voice',status:'Open',scls:'bdg-o',date:'Today 09:58 AM'},
+  {id:'TKT-2890',cust:'Rahul Mehta',issue:'Allergic reaction return — Hyaluronic Moisturizer',pri:'High',pcls:'bdg-r',chan:'WhatsApp + Voice',status:'In Progress',scls:'bdg-b',date:'Today 09:15 AM'},
+  {id:'TKT-2889',cust:'Priyanka Jain',issue:'Wrong item received — SPF Sunscreen instead of Serum',pri:'Medium',pcls:'bdg-o',chan:'WhatsApp',status:'Resolved',scls:'bdg-g',date:'Yesterday 3:20 PM'},
+  {id:'TKT-2888',cust:'Pooja Verma',issue:'Delivery delay — order 5 days overdue',pri:'Low',pcls:'bdg-gray',chan:'WhatsApp + Voice',status:'Resolved',scls:'bdg-g',date:'Yesterday 3:45 PM'},
+  {id:'TKT-2887',cust:'Arjun Patel',issue:'Size exchange request — Niacinamide Toner',pri:'Medium',pcls:'bdg-o',chan:'WhatsApp',status:'In Progress',scls:'bdg-b',date:'2 days ago'},
+];
+
+/* ===== WAVEFORM DATA (pre-computed voice patterns) ===== */
+const wfPatterns = {
+  v1:[.2,.4,.6,.5,.8,.9,.7,.6,.8,.9,.7,.5,.8,.6,.9,.7,.8,.6,.5,.7,.9,.8,.6,.7,.9,.8,.7,.6,.8,.5,.6,.7,.8,.9,.7,.8,.6,.5,.7,.8,.9,.6,.7,.5,.6,.4,.5,.3,.2,.1],
+  v2:[.1,.3,.5,.7,.8,.6,.7,.9,.5,.6,.8,.7,.9,.6,.5,.7,.8,.6,.9,.7,.5,.6,.8,.7,.6,.5,.8,.7,.6,.9,.5,.4,.6,.8,.7,.5,.6,.7,.5,.4,.6,.5,.4,.3,.5,.4,.3,.2,.1,.1],
+  v3:[.3,.5,.7,.9,.8,.7,.9,.8,.7,.6,.9,.8,.7,.8,.9,.7,.6,.8,.9,.8,.7,.6,.7,.8,.9,.7,.8,.6,.7,.9,.8,.6,.7,.5,.6,.8,.7,.5,.6,.7,.8,.6,.5,.4,.5,.6,.4,.3,.2,.1]
+};
+
+/* ===== AUDIO PLAYER STATE ===== */
+const players = {};
+let playerTimers = {};
+
+/* ===== NAVIGATION ===== */
+function nav(el) {
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('act'));
+  el.classList.add('act');
+  const pg = el.dataset.page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('act'));
+  const target = document.getElementById('pg-' + pg);
+  if(target) {
+    target.classList.add('act');
+    if(pg === 'convs') target.style.display = 'grid';
+  }
+  if(pg === 'convs') buildConvList();
+  if(pg === 'calls') buildCalls();
+  if(pg === 'templates') buildTemplates();
+  if(pg === 'campaigns') buildCampaigns();
+  if(pg === 'tickets') buildTickets();
+}
+
+/* ===== CONVERSATIONS ===== */
+function buildConvList() {
+  const el = document.getElementById('convList');
+  el.innerHTML = convData.map((c,i) => `
+    <div class="ci${i===0?' sel':''}" onclick="showConv('${c.id}',this)">
+      <div class="cav" style="background:${c.color}">${c.ini}</div>
+      <div class="ci-meta">
+        <div class="ci-nm">${c.name}</div>
+        <div class="ci-pv">${c.preview}</div>
+      </div>
+      <div class="ci-rt">
+        <span class="ci-tm">${c.time}</span>
+        <span class="bdg ${c.sclass}" style="font-size:10px;padding:2px 6px">${c.status}</span>
+      </div>
+    </div>
+  `).join('');
+  showConv('c1', el.querySelector('.ci'));
+}
+
+function showConv(id, el) {
+  document.querySelectorAll('.ci').forEach(c => c.classList.remove('sel'));
+  if(el) el.classList.add('sel');
+  const c = convData.find(x => x.id === id);
+  if(!c) return;
+  document.getElementById('chatAvtr').style.background = c.color;
+  document.getElementById('chatAvtr').textContent = c.ini;
+  document.getElementById('chatNm').textContent = c.name + ' · ' + c.phone;
+  document.getElementById('chatSt').textContent = '🟢 Active on WhatsApp · Intent: ' + c.intent;
+  document.getElementById('chatBadge').innerHTML = `<span class="bdg ${c.sclass}">${c.status}</span>`;
+  document.getElementById('chatMsgs').innerHTML = c.msgs.map(m => `
+    <div class="mg mg-${m.r}">
+      <div class="mg-sndr">${m.r==='a'?'🤖 AI Support Agent':'👤 '+c.name.split(' ')[0]}</div>
+      <div class="mb mb-${m.r}">${m.txt}</div>
+      <div class="mb-tm ${m.r==='a'?'a':''}">${m.tm}</div>
+    </div>
+  `).join('');
+  document.getElementById('chatInfo').innerHTML = `
+    <div class="cii"><div class="cii-lb">Intent</div><div class="cii-vl"><span class="bdg ${c.bclass}">${c.badge}</span></div></div>
+    <div class="cii"><div class="cii-lb">Phone</div><div class="cii-vl">${c.phone}</div></div>
+    <div class="cii"><div class="cii-lb">Messages</div><div class="cii-vl">${c.msgs.length} total</div></div>
+    <div class="cii"><div class="cii-lb">Channel</div><div class="cii-vl">WhatsApp Business</div></div>
+    <div class="cii"><div class="cii-lb">Status</div><div class="cii-vl"><span class="bdg ${c.sclass}">${c.status}</span></div></div>
+  `;
+  const mc = document.getElementById('chatMsgs');
+  mc.scrollTop = mc.scrollHeight;
+}
+
+/* ===== VOICE CALLS ===== */
+function buildCalls() {
+  const el = document.getElementById('callList');
+  el.innerHTML = callData.map(c => `
+    <div class="call-card">
+      <div class="call-av" style="background:${c.color}">${c.ini}</div>
+      <div class="call-inf">
+        <div class="call-nm">${c.name}</div>
+        <div class="call-mt">
+          <span>${c.date}</span>
+          <span style="font-weight:600;color:var(--t1)">⏱ ${c.dur}</span>
+        </div>
+        <div class="call-mt" style="margin-top:4px"><span class="bdg bdg-p" style="font-size:10px">${c.reason}</span></div>
+        <div class="call-mt" style="margin-top:4px">Ticket: <strong>${c.ticket}</strong></div>
+        <div class="call-mt" style="margin-top:2px;color:var(--g);font-size:11.5px">✅ ${c.outcome}</div>
+      </div>
+      <div class="aplayer" id="ap-${c.id}">
+        <button class="pbtn" onclick="togglePlay('${c.id}',${c.durSec})" id="pb-${c.id}" title="Play Recording">
+          <svg viewBox="0 0 24 24" id="pbi-${c.id}"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <div class="wf-wrap">
+          <div class="wf" id="wf-${c.id}">${genWFHtml(c.id)}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:10.5px;color:var(--t3)">Sarvam AI Voice · Recorded</span>
+          </div>
+        </div>
+        <div class="at" id="at-${c.id}">0:00 / ${c.dur}</div>
+      </div>
+      <div class="call-st"><span class="bdg ${c.sclass}">${c.status}</span></div>
+    </div>
+  `).join('');
+}
+
+function genWFHtml(id) {
+  const patt = wfPatterns[id] || wfPatterns.v1;
+  return patt.map((h,i) => `<div class="wfb" id="wfb-${id}-${i}" style="height:${Math.round(h*32)}px"></div>`).join('');
+}
+
+function togglePlay(id, durSec) {
+  if(!players[id]) players[id] = {playing:false, current:0};
+  const p = players[id];
+  const pbtn = document.getElementById('pb-' + id);
+  const pbi = document.getElementById('pbi-' + id);
+  const at = document.getElementById('at-' + id);
+  const patt = wfPatterns[id] || wfPatterns.v1;
+  const total = patt.length;
+  const dur = callData.find(c=>c.id===id)?.dur || '0:00';
+
+  if(p.playing) {
+    // Pause
+    p.playing = false;
+    clearInterval(playerTimers[id]);
+    pbi.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+  } else {
+    // Play
+    p.playing = true;
+    pbi.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    const tickMs = (durSec / total) * 1000 / 8; // faster than real (8x)
+    playerTimers[id] = setInterval(() => {
+      p.current++;
+      // Update waveform coloring
+      for(let i=0; i<total; i++) {
+        const bar = document.getElementById(`wfb-${id}-${i}`);
+        if(bar) bar.classList.toggle('pl', i < p.current);
+      }
+      // Update time display
+      const elapsed = Math.floor((p.current / total) * durSec);
+      const em = Math.floor(elapsed/60), es = elapsed%60;
+      at.textContent = `${em}:${es.toString().padStart(2,'0')} / ${dur}`;
+      if(p.current >= total) {
+        p.playing = false;
+        p.current = 0;
+        clearInterval(playerTimers[id]);
+        pbi.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+        at.textContent = `0:00 / ${dur}`;
+        for(let i=0;i<total;i++){const b=document.getElementById(`wfb-${id}-${i}`);if(b)b.classList.remove('pl')}
+      }
+    }, tickMs);
+  }
+}
+
+/* ===== TEMPLATES ===== */
+function buildTemplates(filter='all') {
+  const el = document.getElementById('tplGrid');
+  const filtered = filter==='all' ? tplData : tplData.filter(t=>t.cat===filter);
+  el.innerHTML = filtered.map(t => `
+    <div class="tpl-card">
+      <div class="tpl-hdr">
+        <div>
+          <div class="tpl-nm">${t.name}</div>
+          <div class="tpl-cat">${t.cat} · WhatsApp Business</div>
+        </div>
+        <span class="bdg ${t.sc}">${t.status}</span>
+      </div>
+      <div class="tpl-prev">${t.prev}</div>
+      <div class="tpl-foot">
+        <div class="ts"><div class="ts-v">${t.sent.toLocaleString()}</div><div class="ts-l">Sent</div></div>
+        <div class="ts"><div class="ts-v" style="color:var(--g)">${t.dlv}</div><div class="ts-l">Delivered</div></div>
+        <div class="ts"><div class="ts-v" style="color:var(--pr)">${t.read}</div><div class="ts-l">Read Rate</div></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Filter chips
+  document.querySelectorAll('#tplFilters .fc').forEach(btn => {
+    btn.classList.toggle('act', btn.dataset.f === filter);
+    btn.onclick = () => buildTemplates(btn.dataset.f);
+  });
+}
+
+/* ===== CAMPAIGNS ===== */
+function buildCampaigns(filter='all') {
+  const el = document.getElementById('campTable');
+  const filtered = filter==='all' ? campData : campData.filter(c=>c.cat===filter);
+  el.innerHTML = filtered.map(c => `
+    <tr>
+      <td><strong>${c.cust}</strong></td>
+      <td style="color:var(--t3);font-size:12px">${c.phone}</td>
+      <td><span class="bdg ${c.lclass}">${c.label}</span></td>
+      <td style="color:var(--t2);max-width:220px;font-size:12.5px">${c.prev}</td>
+      <td style="color:var(--t3);font-size:12px;white-space:nowrap">${c.sent}</td>
+      <td><span class="bdg ${c.sclass}">${c.status}</span></td>
+    </tr>
+  `).join('');
+
+  document.querySelectorAll('#campFilters .fc').forEach(btn => {
+    btn.classList.toggle('act', btn.dataset.f === filter);
+    btn.onclick = () => buildCampaigns(btn.dataset.f);
+  });
+}
+
+/* ===== TICKETS ===== */
+function buildTickets() {
+  const el = document.getElementById('tickTable');
+  el.innerHTML = tickData.map(t => `
+    <tr>
+      <td><strong style="font-family:monospace;font-size:13px">${t.id}</strong></td>
+      <td>${t.cust}</td>
+      <td style="max-width:240px;font-size:12.5px;color:var(--t2)">${t.issue}</td>
+      <td><span class="bdg ${t.pcls}">${t.pri}</span></td>
+      <td style="font-size:12px;color:var(--t3)">${t.chan}</td>
+      <td><span class="bdg ${t.scls}">${t.status}</span></td>
+      <td style="font-size:12px;color:var(--t3);white-space:nowrap">${t.date}</td>
+    </tr>
+  `).join('');
+}
+
+/* ===== INIT ===== */
+// Fix conv page display
+document.getElementById('pg-convs').style.display = 'none';
+document.getElementById('pg-convs').style.height = 'calc(100vh - 61px)';
+</script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id               String               @id @default(cuid())
+  name             String
+  slug             String               @unique
+  businessName     String
+  plan             String               @default("growth")
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  members          OrganizationMember[]
+  customers        Customer[]
+  channels         Channel[]
+  conversations    Conversation[]
+  messages         Message[]
+  orders           Order[]
+  orderItems       OrderItem[]
+  products         Product[]
+  tickets          Ticket[]
+  campaigns        Campaign[]
+  templates        Template[]
+  voiceCalls       VoiceCall[]
+  aiConfigurations AiConfiguration[]
+
+  @@index([slug])
+}
+
+model User {
+  id          String               @id @default(cuid())
+  email       String               @unique
+  password    String
+  name        String
+  role        String               @default("ADMIN") // OWNER, ADMIN, AGENT
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  memberships OrganizationMember[]
+
+  @@index([email])
+}
+
+model OrganizationMember {
+  id             String       @id @default(cuid())
+  organizationId String
+  userId         String
+  role           String       @default("ADMIN")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model Customer {
+  id             String         @id @default(cuid())
+  organizationId String
+  phone          String
+  name           String?
+  email          String?
+  lifetimeValue  Float          @default(0)
+  avatarColor    String?        @default("#4F46E5")
+  initials       String?        @default("CU")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversations  Conversation[]
+  orders         Order[]
+  tickets        Ticket[]
+  voiceCalls     VoiceCall[]
+
+  @@unique([organizationId, phone])
+  @@index([organizationId])
+  @@index([phone])
+}
+
+model Channel {
+  id              String         @id @default(cuid())
+  organizationId  String
+  type            String         @default("whatsapp")
+  phoneNumber     String?
+  phoneNumberId   String?
+  webhookVerified Boolean        @default(true)
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversations   Conversation[]
+
+  @@index([organizationId])
+}
+
+model Conversation {
+  id             String       @id @default(cuid())
+  organizationId String
+  customerId     String
+  channelId      String?
+  status         String       @default("AI_ACTIVE") // AI_ACTIVE, HUMAN_REQUESTED, HUMAN_ACTIVE, RESOLVED, CLOSED
+  aiActive       Boolean      @default(true)
+  intent         String?      @default("general_support")
+  priority       String       @default("normal") // normal, high, urgent
+  lastMessage    String?
+  lastMessageAt  DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  closedAt       DateTime?
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer       Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  channel        Channel?     @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  messages       Message[]
+  tickets        Ticket[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([customerId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  organizationId String
+  conversationId String
+  sender         String // CUSTOMER, AI, HUMAN, SYSTEM
+  content        String
+  intent         String?
+  needsHuman     Boolean      @default(false)
+  needsCall      Boolean      @default(false)
+  orderId        String?
+  ticketId       String?
+  messageId      String?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([conversationId])
+  @@index([createdAt])
+}
+
+model Order {
+  id             String       @id @default(cuid())
+  organizationId String
+  externalId     String
+  status         String // confirmed, processing, shipped, out_for_delivery, delivered, cancelled, returned
+  trackingNumber String?
+  carrier        String?
+  eta            String?
+  total          Float        @default(0)
+  currency       String       @default("INR")
+  customerId     String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer       Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  items          OrderItem[]
+
+  @@unique([organizationId, externalId])
+  @@index([organizationId])
+  @@index([customerId])
+}
+
+model OrderItem {
+  id             String       @id @default(cuid())
+  organizationId String
+  orderId        String
+  productId      String?
+  name           String
+  sku            String?
+  quantity       Int          @default(1)
+  price          Float        @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  order          Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product        Product?     @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([orderId])
+}
+
+model Product {
+  id             String       @id @default(cuid())
+  organizationId String
+  externalId     String
+  name           String
+  description    String?
+  price          Float
+  currency       String       @default("INR")
+  sku            String?
+  category       String?
+  checkoutUrl    String?
+  imageUrl       String?
+  benefits       String?
+  inStock        Boolean      @default(true)
+  stockQuantity  Int          @default(50)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  orderItems     OrderItem[]
+
+  @@unique([organizationId, externalId])
+  @@index([organizationId])
+  @@index([name])
+}
+
+model Ticket {
+  id             String       @id @default(cuid())
+  ticketNumber   String       @unique // e.g. TKT-2891
+  organizationId String
+  conversationId String?
+  customerId     String
+  issue          String
+  priority       String       @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  status         String       @default("OPEN") // OPEN, IN_PROGRESS, WAITING_CUSTOMER, RESOLVED, CLOSED
+  channel        String       @default("WhatsApp")
+  assigneeName   String?      @default("AI Support Agent")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  resolvedAt     DateTime?
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  customer       Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([customerId])
+}
+
+model Template {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  category       String       @default("utility") // utility, marketing, authentication
+  status         String       @default("Approved")
+  preview        String
+  sentCount      Int          @default(0)
+  deliveredRate  String       @default("98%")
+  readRate       String       @default("75%")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
+model Campaign {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  type           String // abandoned_cart, cod_confirmation, delivery_reminder, post_purchase, review_request, reorder_reminder, cross_sell
+  templateName   String?
+  status         String       @default("ACTIVE") // ACTIVE, PAUSED, COMPLETED
+  customerName   String?
+  customerPhone  String?
+  messagePreview String?
+  sentAt         DateTime?    @default(now())
+  delivered      Boolean      @default(true)
+  read           Boolean      @default(false)
+  replied        Boolean      @default(false)
+  converted      Boolean      @default(false)
+  revenue        Float        @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([type])
+}
+
+model VoiceCall {
+  id             String       @id @default(cuid())
+  organizationId String
+  customerId     String?
+  customerName   String
+  phone          String
+  reason         String
+  ticketNumber   String?
+  duration       String       @default("2:15")
+  durationSec    Int          @default(135)
+  outcome        String
+  transcript     String?
+  summary        String?
+  status         String       @default("Resolved")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer       Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+}
+
+model AiConfiguration {
+  id                     String       @id @default(cuid())
+  organizationId         String       @unique
+  businessName           String       @default("NivaGlow")
+  tone                   String       @default("Friendly & Professional") // Friendly, Professional, Concise
+  language               String       @default("Hinglish & English")
+  autoOrderTracking      Boolean      @default(true)
+  autoProductQuestions   Boolean      @default(true)
+  autoReturns            Boolean      @default(true)
+  autoFaqs               Boolean      @default(true)
+  escalateDisputes       Boolean      @default(true)
+  escalateLegal          Boolean      @default(true)
+  escalateAngry          Boolean      @default(true)
+  responseLength         String       @default("Normal") // Short, Normal, Detailed
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+  organization           Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
